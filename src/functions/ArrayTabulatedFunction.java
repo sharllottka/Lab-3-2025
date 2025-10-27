@@ -3,6 +3,8 @@ package functions;
 public class ArrayTabulatedFunction implements TabulatedFunction {
     private FunctionPoint[] points;
     private int pointsCount;
+    private static final double EPS = 1e-9;
+
 
     // конструктор, если нужно создать функцию с нулями
     public ArrayTabulatedFunction(double leftX, double rightX, int pointsCount) {
@@ -92,8 +94,8 @@ public class ArrayTabulatedFunction implements TabulatedFunction {
         }
 
         // проверяем, чтобы x не нарушил порядок
-        if ((index > 0 && point.getX() <= points[index - 1].getX()) ||
-                (index < pointsCount - 1 && point.getX() >= points[index + 1].getX())) {
+        if ((index > 0 && point.getX() < points[index - 1].getX() + EPS) ||
+                (index < pointsCount - 1 && point.getX() > points[index + 1].getX() - EPS)) {
             throw new InappropriateFunctionPointException("x нарушает порядок точек");
         }
 
@@ -116,8 +118,8 @@ public class ArrayTabulatedFunction implements TabulatedFunction {
             throw new FunctionPointIndexOutOfBoundsException("Неверный индекс");
         }
 
-        if ((index > 0 && x <= points[index - 1].getX()) ||
-                (index < pointsCount - 1 && x >= points[index + 1].getX())) {
+        if ((index > 0 && x <= points[index - 1].getX() + EPS) ||
+                (index < pointsCount - 1 && x >= points[index + 1].getX() - EPS)) {
             throw new InappropriateFunctionPointException("x нарушает порядок точек");
         }
 
@@ -164,7 +166,7 @@ public class ArrayTabulatedFunction implements TabulatedFunction {
     public void addPoint(FunctionPoint point) throws InappropriateFunctionPointException {
         // проверка на совпадение x
         for (int i = 0; i < pointsCount; i++) {
-            if (points[i].getX() == point.getX()) {
+            if (Math.abs(points[i].getX() - point.getX()) < EPS) {
                 throw new InappropriateFunctionPointException("Такая точка уже есть");
             }
         }
@@ -172,7 +174,7 @@ public class ArrayTabulatedFunction implements TabulatedFunction {
         // создаем новый массив на 1 больше
         FunctionPoint[] newArr = new FunctionPoint[pointsCount + 1];
         int i = 0;
-        while (i < pointsCount && points[i].getX() < point.getX()) {
+        while (i < pointsCount && points[i].getX() < point.getX() - EPS) {
             newArr[i] = points[i];
             i++;
         }
